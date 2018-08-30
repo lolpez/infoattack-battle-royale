@@ -96,8 +96,7 @@ socket.on('state', function(players) {
 	redraw();
 });
 
-function redraw(){	
-	context.translate(player.x - canvas.width / 2, player.y - canvas.height / 2);
+function redraw(){
 	context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 	context.fillStyle = 'green';
 	for (var id in gamePlayers) {
