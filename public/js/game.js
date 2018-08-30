@@ -82,7 +82,7 @@ function requestFullScreen() {
 	isFullScreen = !isFullScreen;
 }
 
-socket.emit('new player');
+socket.emit('new player', {name: name});
 setInterval(function() {
 	socket.emit('movement', movement);
 }, 1000 / 60);
@@ -91,8 +91,12 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-socket.on('state', function(players) {
-	gamePlayers = players;
+context.fillStyle = "#003300";
+context.font = '20px san-serif';
+
+socket.on('state', function(gameData) {
+	document.getElementById('playerCount').innerHTML = `${gameData.alive}/${gameData.total}`;
+	gamePlayers = gameData.players;
 	redraw();
 });
 
@@ -103,6 +107,7 @@ function redraw(){
 		var player = gamePlayers[id];
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
+		context.fillText(name, player.x - context.measureText(player.name).width - (context.measureText(player.name).width/2), player.y - 20);
 		context.fill();
 	}
 }

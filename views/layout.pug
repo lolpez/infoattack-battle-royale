@@ -7,9 +7,11 @@ html
 		block content
 		#menu
 			input(type='button', value='click to go fullscreen', onclick='requestFullScreen()')
+			span#playerCount
 		#joystickLeft.joystick.left
 		#joystickLeft.joystick.right
 		canvas#canvas
 		script(src='./socket.io/socket.io.js')
 		script(src='./js/virtualjoystick.js')
 		script(src='./js/game.js')
+		block scripts

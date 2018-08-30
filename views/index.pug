@@ -1,2 +1,7 @@
-extends layout
-block content
+form(action='/game', method="POST")
+	| Name:
+	br
+	input(type='text', name='name', value='lolpez')
+	br
+	br
+	input(type='submit', value='Submit')
