@@ -91,7 +91,6 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-context.fillStyle = "#003300";
 context.font = '20px san-serif';
 
 socket.on('state', function(gameData) {
@@ -107,7 +106,7 @@ function redraw(){
 		var player = gamePlayers[id];
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-		context.fillText(name, player.x - context.measureText(player.name).width - (context.measureText(player.name).width/2), player.y - 20);
+		context.fillText(name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width/2), player.y - 20);
 		context.fill();
 	}
 }
