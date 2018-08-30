@@ -8,6 +8,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+server.listen(80);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,5 +40,37 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+var players = {};
+io.on('connection', function(socket) {
+  socket.on('new player', function() {
+    players[socket.id] = {
+      x: 300,
+      y: 300
+    };
+  });
+  socket.on('movement', function(data) {
+    var player = players[socket.id] || {};
+    if (data.left) {
+      player.x -= 5;
+    }
+    if (data.up) {
+      player.y -= 5;
+    }
+    if (data.right) {
+      player.x += 5;
+    }
+    if (data.down) {
+      player.y += 5;
+    }
+  });
+  socket.on('disconnect', function() {
+    delete players[socket.id];
+  });
+});
+
+setInterval(function() {
+  io.sockets.emit('state', players);
+}, 1000 / 60);
 
 module.exports = app;

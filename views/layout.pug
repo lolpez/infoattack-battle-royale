@@ -1,7 +1,15 @@
-doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+	head
+		title A Multiplayer Game
+		meta(name='viewport', content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0')
+		link(rel='stylesheet', href='./css/style.css')
+	body
+		block content
+		#menu
+			input(type='button', value='click to go fullscreen', onclick='requestFullScreen()')
+		#joystickLeft.joystick.left
+		#joystickLeft.joystick.right
+		canvas#canvas
+		script(src='./socket.io/socket.io.js')
+		script(src='./js/virtualjoystick.js')
+		script(src='./js/game.js')

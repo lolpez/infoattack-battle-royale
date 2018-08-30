@@ -1,0 +1,41 @@
+body {
+	padding: 0;
+	margin: 0;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	overflow	: hidden;
+	width:  100%;
+  	height: 100%;
+}
+
+a {
+	color: #00B7FF;
+}
+
+#canvas {
+	border: 5px solid black;
+}
+
+#menu{
+	position: fixed;
+	margin: 10px;
+	z-index: 100;
+}
+
+.joystick {
+	width: 50%;
+	height: 100%;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+	-webkit-user-select	: none;
+	-moz-user-select	: none;
+	position: fixed;
+}
+
+.left {
+	left: 0%;
+}
+
+.right {
+	left: 50%;
+}
