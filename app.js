@@ -55,6 +55,11 @@ io.on('connection', function(socket) {
 			x: 300,
 			y: 300
 		};
+		io.sockets.emit('your shit', {
+			name: data.name,
+			x: 300,
+			y: 300
+		});
 	});
 	socket.on('movement', function(data) {
 		var player = gameData.players[socket.id] || {};
