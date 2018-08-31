@@ -186,7 +186,7 @@
 			context.fillStyle = "black";
 			// before draw we need to convert player world's position to canvas position			
 			context.fillRect((this.x-this.width/2) - xView, (this.y-this.height/2) - yView, this.width, this.height);
-			context.restore();			
+			context.restore();
 		}
 		
 		// add "class" Player to our Game object
@@ -209,7 +209,7 @@
 		Map.prototype.generate = function(){
 			var ctx = document.createElement("canvas").getContext("2d");		
 			ctx.canvas.width = this.width;
-			ctx.canvas.height = this.height;		
+			ctx.canvas.height = this.height;
 			
 			var rows = ~~(this.width/44) + 1;
 			var columns = ~~(this.height/44) + 1;
@@ -225,20 +225,34 @@
 				color = (color == "red" ? "blue" : "red");
 				ctx.fillStyle = color;
 				ctx.fill();
-				ctx.closePath();			
+				ctx.closePath();
 			}		
 			ctx.restore();	
 			
 			// store the generate map as this image texture
 			this.image = new Image();
-			this.image.src = ctx.canvas.toDataURL("image/png");					
+			this.image.src = ctx.canvas.toDataURL("image/png");
 			
 			// clear context
 			ctx = null;
 		}
+
+		Map.prototype.load = function(){
+			var ctx = document.createElement("canvas").getContext("2d");	
+			ctx.canvas.width = this.width;
+			ctx.canvas.height = this.height;					
+			var img=document.getElementById("floorTexture");
+			var pat=ctx.createPattern(img,"repeat");
+			ctx.rect(0,0,this.width,this.height);
+			ctx.fillStyle=pat;
+			ctx.fill();
+			this.image = new Image();
+			this.image.src = ctx.canvas.toDataURL("image/png");
+			ctx = null;
+		}
 		
 		// draw the map adjusted to camera
-		Map.prototype.draw = function(context, xView, yView){					
+		Map.prototype.draw = function(context, xView, yView){
 			// easiest way: draw the entire map changing only the destination coordinate in canvas
 			// canvas will cull the image by itself (no performance gaps -> in hardware accelerated environments, at least)
 			//context.drawImage(this.image, 0, 0, this.image.width, this.image.height, -xView, -yView, this.image.width, this.image.height);
@@ -269,8 +283,8 @@
 			dy = 0;
 			// match destination with source to not scale the image
 			dWidth = sWidth;
-			dHeight = sHeight;									
-			
+			dHeight = sHeight;
+
 			context.drawImage(this.image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);			
 		}
 		
@@ -298,7 +312,7 @@
 		};
 		
 		// generate a large image texture for the room
-		room.map.generate();
+		room.map.load();
 		 
 		// setup player
 		var player = new Game.Player(50, 50);

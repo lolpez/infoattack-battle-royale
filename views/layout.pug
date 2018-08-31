@@ -5,14 +5,15 @@ html
 		link(rel='stylesheet', href='./css/style.css')
 	body
 		block content
-		#menu
-			input(type='button', value='click to go fullscreen', onclick='requestFullScreen()')
-			span#playerCount
-		#joystickLeft.joystick.left
-		#joystickLeft.joystick.right
+		img(src="./img/grass.jpg", id="floorTexture", width="50", height="50", hidden)
+		//- #menu
+		//- 	input(type='button', value='click to go fullscreen', onclick='requestFullScreen()')
+		//- 	span#playerCount
+		//- #joystickLeft.joystick.left
+		//- #joystickLeft.joystick.right
 		canvas#gameCanvas
 		script(src='./socket.io/socket.io.js')
-		script(src='./js/virtualjoystick.js')
-		script(src='./js/game.js')
+		//- script(src='./js/virtualjoystick.js')
+		//- script(src='./js/game.js')
 		script(src='./js/viewport.js')
 		block scripts
