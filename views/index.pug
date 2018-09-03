@@ -1,7 +1,12 @@
-form(action='/game', method="POST")
-	| Name:
-	br
-	input(type='text', name='name', value='lolpez')
-	br
-	br
-	input(type='submit', value='Submit')
+html
+	head
+		title A Multiplayer Game
+		meta(name='viewport', content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0')
+	body
+		form(action='/game', method="POST")
+			| Name:
+			br
+			input(type='text', name='name', value='lolpez')
+			br
+			br
+			input(type='submit', value='Submit')

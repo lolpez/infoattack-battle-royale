@@ -1,10 +1,17 @@
 var socket = io();
 
 var joystick = new VirtualJoystick({
-	container: document.getElementById('joystickLeft'),
+	container: document.getElementById('joystick'),
 	mouseSupport: true,
 	limitStickTravel: true
 });
+
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+document.getElementById('playerCount').innerHTML = `${canvas.width} x ${canvas.height}`;
+context.font = '20px san-serif';
 
 var movement = {
 	up: false,
@@ -13,8 +20,10 @@ var movement = {
 	right: false
 }
 
-var gamePlayers;
+var gamePlayers = null;
+var gameBullets = null;
 var isFullScreen = false;
+var currentPlayer = null;
 
 setInterval(function () {
 	joystick.right() ? movement.right = true : movement.right = false;
@@ -83,50 +92,45 @@ function requestFullScreen() {
 }
 
 socket.emit('new player', { name: name });
+socket.on('player info', function (playerInfo) {
+	currentPlayer = playerInfo;
+});
+
 setInterval(function () {
 	socket.emit('movement', movement);
 }, 1000 / 60);
 
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-context.font = '20px san-serif';
-
 socket.on('state', function (gameData) {
-	document.getElementById('playerCount').innerHTML = `${gameData.alive}/${gameData.total}`;
+	// document.getElementById('playerCount').innerHTML = `${gameData.alive}/${gameData.total}`;
 	gamePlayers = gameData.players;
+	gameBullets = gameData.bullets;
 	redraw();
 });
 
-socket.on('your shit', function (gameData) {
-	console.log(gameData)
-});
-
 function redraw() {
-	context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+	document.getElementById('playerCount').innerHTML = `${canvas.width} x ${canvas.height}`;
+	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.fillStyle = 'green';
 	for (var id in gamePlayers) {
 		var player = gamePlayers[id];
+		if (currentPlayer)	if (player.id === currentPlayer.id) currentPlayer = player;
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-		context.fillText(name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
+		context.fillText(player.name + " " + player.x + "," + player.y, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
+		context.fill();
+	}
+	
+	context.fillStyle = 'black';
+	for (var id in gameBullets) {
+		var bullet = gameBullets[id]
+		context.beginPath();
+		context.rect(bullet.x, bullet.y, bullet.width, bullet.height);
 		context.fill();
 	}
 }
 
 function resizeCanvas() {
-	canvas.width = window.outerWidth;
-	canvas.height = window.outerHeight;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 	redraw();
 }
-
-canvas.onwheel = function (event) {
-	event.preventDefault();
-};
-
-canvas.onmousewheel = function (event) {
-	event.preventDefault();
-};
-
-window.addEventListener('resize', resizeCanvas, false);

@@ -11,15 +11,6 @@ a {
 	color: #00B7FF;
 }
 
-#canvas {
-	border: 5px solid black;
-}
-
-#gameCanvas{
-	width: 100%;
-	height: 100%;
-}
-
 #menu{
 	position: fixed;
 	margin: 10px;
@@ -27,7 +18,7 @@ a {
 }
 
 .joystick {
-	width: 50%;
+	width: 100%;
 	height: 100%;
 	overflow: hidden;
 	padding: 0;
@@ -35,12 +26,4 @@ a {
 	-webkit-user-select	: none;
 	-moz-user-select	: none;
 	position: fixed;
-}
-
-.left {
-	left: 0%;
-}
-
-.right {
-	left: 50%;
 }

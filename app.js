@@ -43,46 +43,112 @@ app.use(function(err, req, res, next) {
 
 var gameData = {
 	players: {},
-	alive: 0,
-	total: 0,
+	bullets: [],
+	total: 0
 }
+var width = 350;
+var height = 550;
+var bulletSpeed = 5;
+var bulletMaxSize = 50;
+var bulletMinSize = 10;
+var playerSpeed = 5;
+
 io.on('connection', function(socket) {
 	socket.on('new player', function(data) {
-		gameData.alive++;
 		gameData.total++;
-		gameData.players[socket.id] = {
+		var player = {
+			id: socket.id,
 			name: data.name,
-			x: 300,
-			y: 300
-		};
-		io.sockets.emit('your shit', {
-			name: data.name,
-			x: 300,
-			y: 300
-		});
+			x: 125,
+			y: 275
+		}
+		gameData.players[socket.id] = player;
+		io.sockets.emit('player info', player);
 	});
-	socket.on('movement', function(data) {
+	socket.on('movement', function(data) {		
 		var player = gameData.players[socket.id] || {};
-		if (data.left) {
-			player.x -= 5;
+		if (data.left && player.x - 10 > 0) {
+			player.x -= playerSpeed;
 		}
-		if (data.up) {
-			player.y -= 5;
+		if (data.up && player.y - 40 > 0) {
+			player.y -= playerSpeed;
 		}
-		if (data.right) {
-			player.x += 5;
+		if (data.right && player.x + 20 < width) {
+			player.x += playerSpeed;
 		}
-		if (data.down) {
-			player.y += 5;
+		if (data.down && player.y + 20 < height) {
+			player.y += playerSpeed;
 		}
 	});
 	socket.on('disconnect', function() {
 		delete gameData.players[socket.id];
-		gameData.alive--;
+		gameData.total--;
 	});
 });
 
 setInterval(function() {
+	var h = Math.random() >= 0.5;
+	var v = !h;
+	var dir = "";
+	var x = 0;
+	var y = 0;
+	var bulletWidth = 0;
+	var bulletHeight = 0;
+	if (h){
+		bulletWidth = bulletMaxSize;
+		bulletHeight = bulletMinSize;
+		if (Math.random() >= 0.5) {
+			dir = "lr"
+			x = 0;
+		}else{
+			dir = "rl";
+			x = width;
+		}
+		y = Math.floor(Math.random() * width)
+	}else{
+		bulletWidth = bulletMinSize;
+		bulletHeight = bulletMaxSize;
+		if (Math.random() >= 0.5) {
+			dir = "tb";
+			y = 0;
+		}else{
+			dir = "bt";
+			y = height;
+		}
+		x = Math.floor(Math.random() * width)
+	}
+	var bullet = {
+		x: x,
+		y: y,
+		width: bulletWidth,
+		height: bulletHeight,
+		dir: dir
+	}
+	gameData.bullets.push(bullet);
+}, 50);
+
+setInterval(function() {
+	for (i = 0; i < gameData.bullets.length; i++){
+		var bullet = gameData.bullets[i]
+		switch (bullet.dir){
+			case "lr":
+				bullet.x += bulletSpeed
+				if (bullet.x > width) gameData.bullets.splice(i, 1)
+			break;
+			case "rl":
+				bullet.x -= bulletSpeed 
+				if (bullet.x < 0) gameData.bullets.splice(i, 1)
+			break;
+			case "tb":
+				bullet.y += bulletSpeed
+				if (bullet.y > height) gameData.bullets.splice(i, 1)
+			break;
+			case "bt":
+				bullet.y -= bulletSpeed
+				if (bullet.y < 0) gameData.bullets.splice(i, 1)
+			break;
+		}
+	}
 	io.sockets.emit('state', gameData);
 }, 1000 / 60);
 
