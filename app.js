@@ -44,6 +44,7 @@ app.use(function(err, req, res, next) {
 var gameData = {
 	players: {},
 	bullets: [],
+	helping: {},
 	total: 0
 }
 var width = 350;
@@ -51,7 +52,10 @@ var height = 550;
 var bulletSpeed = 5;
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
+var playerWidth = 25;
+var playerHeight = 25;
 var playerSpeed = 5;
+var playerIncapacitatedSpeed = 0.3;
 
 io.on('connection', function(socket) {
 	socket.on('new player', function(data) {
@@ -59,6 +63,10 @@ io.on('connection', function(socket) {
 		var player = {
 			id: socket.id,
 			name: data.name,
+			width: playerWidth,
+			height: playerHeight,
+			speed: playerSpeed,
+			incapacitated: false,
 			x: 125,
 			y: 275
 		}
@@ -68,16 +76,16 @@ io.on('connection', function(socket) {
 	socket.on('movement', function(data) {		
 		var player = gameData.players[socket.id] || {};
 		if (data.left && player.x - 10 > 0) {
-			player.x -= playerSpeed;
+			player.x -= player.speed;
 		}
 		if (data.up && player.y - 40 > 0) {
-			player.y -= playerSpeed;
+			player.y -= player.speed;
 		}
 		if (data.right && player.x + 20 < width) {
-			player.x += playerSpeed;
+			player.x += player.speed;
 		}
 		if (data.down && player.y + 20 < height) {
-			player.y += playerSpeed;
+			player.y += player.speed;
 		}
 	});
 	socket.on('disconnect', function() {
@@ -125,7 +133,7 @@ setInterval(function() {
 		dir: dir
 	}
 	gameData.bullets.push(bullet);
-}, 50);
+}, 1000);
 
 setInterval(function() {
 	for (i = 0; i < gameData.bullets.length; i++){
@@ -149,7 +157,96 @@ setInterval(function() {
 			break;
 		}
 	}
+	hits().then((player, bulletPos) => {
+		if (player.incapacitated){ //player died
+			//delete gameData.players[player.id];
+			gameData.total--;
+		}else{ //player incapacitated
+			bulletSpeed = 0;
+			player.incapacitated = true;
+			player.speed = playerIncapacitatedSpeed;
+		}
+		gameData.bullets.splice(bulletPos, 1);
+	});
+	help().then((data) => {
+		(data.help) ? startHelping(data.helper, data.incapacitated) : stopHelping(data.helper, data.incapacitated)
+	});
 	io.sockets.emit('state', gameData);
 }, 1000 / 60);
+
+function hits(){
+	return new Promise((resolve, reject) => {
+		for (i = 0; i < gameData.bullets.length; i++){
+			var bullet = gameData.bullets[i];
+			for (var j in gameData.players) {
+				var player = gameData.players[j];
+				if ((bullet.x + bullet.width) > player.x &&
+					bullet.x < player.x + player.width &&
+					(bullet.y + bullet.height) > player.y &&
+					bullet.y < player.y + player.height){
+						resolve(player, i)
+				}
+			}
+		}
+	});
+}
+
+function help(){
+	return new Promise((resolve, reject) => {
+		for (var i in gameData.players) {
+			var incapacitated = gameData.players[i];
+			if (incapacitated.incapacitated){
+				for (var j in gameData.players) {
+					helper = gameData.players[j];
+					if (helper.id !== incapacitated.id){
+						if ((incapacitated.x + incapacitated.width) > helper.x &&
+							incapacitated.x < helper.x + helper.width &&
+							(incapacitated.y + incapacitated.height) > helper.y &&
+							incapacitated.y < helper.y + helper.height){
+								//helper is helpig incapacitated
+								resolve({
+									helper: helper,
+									incapacitated: incapacitated,
+									help: true
+								})
+						}else{
+							resolve({
+								helper: helper,
+								incapacitated: incapacitated,
+								help: false
+							})
+						}
+					}
+				}
+			}
+		}
+	});
+}
+
+function startHelping(helper, incapacitated){
+	console.log(gameData.helping[helper.id + incapacitated.id] === undefined)
+	if (gameData.helping[helper.id + incapacitated.id] === undefined){
+		console.log("entre")
+		var timeout = setTimeout(function(){ 
+			console.log("salvado papu")
+			incapacitated.incapacitated = false;
+			incapacitated.speed = playerSpeed;
+			//clearTimeout(gameData.helping[helper.id + incapacitated.id].interval);
+			delete gameData.helping[helper.id + incapacitated.id];
+		}, 3000)
+		gameData.helping[helper.id + incapacitated.id] = {
+			helper: helper,
+			incapacitated: incapacitated,
+			timeout: timeout
+		}
+	}
+}
+
+function stopHelping(helper, incapacitated){
+	/*if (gameData.helping[helper.id + incapacitated.id] !== undefined){
+		clearTimeout(gameData.helping[helper.id + incapacitated.id].interval);
+		delete gameData.helping[helper.id + incapacitated.id];
+	}*/
+}
 
 module.exports = app;

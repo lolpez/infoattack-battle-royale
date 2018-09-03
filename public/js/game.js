@@ -115,7 +115,8 @@ function redraw() {
 		var player = gamePlayers[id];
 		if (currentPlayer)	if (player.id === currentPlayer.id) currentPlayer = player;
 		context.beginPath();
-		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
+		//context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
+		context.rect(player.x, player.y, player.width, player.height);
 		context.fillText(player.name + " " + player.x + "," + player.y, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
 		context.fill();
 	}
