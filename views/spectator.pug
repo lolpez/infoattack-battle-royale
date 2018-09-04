@@ -3,18 +3,14 @@ html
 		title Spectator Mode
 		meta(name='viewport', content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0')
 	body
-		| Bullet Speed:
+		| Start Game
 		br
-		input(type='text', id='bulletSpeed', value='5')
+		input(type='button', id='start', value="start")
 		br
 		script(src='./socket.io/socket.io.js')
 		script.
 			var socket = io();
-			var bulletSpeed = document.getElementById('bulletSpeed')
-			bulletSpeed.addEventListener("change", function(){
-				socket.emit('modifier', 
-					{
-						bulletSpeed: bulletSpeed.value
-					}
-				);
+			var startButton = document.getElementById('start')
+			startButton.addEventListener("click", function(){
+				socket.emit('start');
 			});

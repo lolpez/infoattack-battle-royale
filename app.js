@@ -43,6 +43,7 @@ app.use(function(err, req, res, next) {
 	res.render('error');
 });
 
+var init = false;
 var width = 400;
 var height = 600;
 var bulletSpeed = 5;
@@ -97,11 +98,10 @@ function hideCross(){
 	}, secondsToCross * 800)
 }
 
-showCross();
-
 io.on('connection', function(socket) {
-	socket.on('modifier', function(data) {
-		bulletSpeed = data.bulletSpeed
+	socket.on('start', function() {
+		setTimeout(shoot, difficulty * 1000);
+		showCross();
 	});
 	socket.on('new player', function(data) {
 		gameData.total++;
@@ -141,7 +141,7 @@ io.on('connection', function(socket) {
 });
 
 var shoot = function() {
-    if (difficulty > 0.4){
+	if (difficulty > 0.4){
 		difficulty = difficulty - 0.2;
 	}
 	var h = Math.random() >= 0.5;
@@ -182,9 +182,8 @@ var shoot = function() {
 		dir: dir
 	}
 	gameData.bullets.push(bullet);
-    setTimeout(shoot, difficulty * 1000);
+	setTimeout(shoot, difficulty * 1000);
 }
-setTimeout(shoot, difficulty * 1000);
 
 setInterval(function() {	
 	for (i = 0; i < gameData.bullets.length; i++){
@@ -225,6 +224,7 @@ setInterval(function() {
 	});
 	io.sockets.emit('state', gameData);
 }, 1000 / 60);
+
 
 function hits(){
 	return new Promise((resolve, reject) => {	
