@@ -94,6 +94,8 @@ function requestFullScreen() {
 socket.emit('new player', { name: name });
 socket.on('player info', function (playerInfo) {
 	currentPlayer = playerInfo;
+	canvas.width = playerInfo.mapWidth;
+	canvas.height = playerInfo.mapHeight;
 });
 
 setInterval(function () {
@@ -101,7 +103,7 @@ setInterval(function () {
 }, 1000 / 60);
 
 socket.on('state', function (gameData) {
-	document.getElementById('playerCount').innerHTML = `${gameData.total} alive`;
+	//document.getElementById('playerCount').innerHTML = `${gameData.total} alive`;
 	gamePlayers = gameData.players;
 	gameBullets = gameData.bullets;
 	cross = gameData.cross;

@@ -43,10 +43,10 @@ app.use(function(err, req, res, next) {
 	res.render('error');
 });
 
-var width = 350;
-var height = 550;
+var width = 400;
+var height = 600;
 var bulletSpeed = 5;
-var difficulty = 15; // 1 bullet per 5 secs
+var difficulty = 7; // 1 bullet per 7 secs
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
 var playerWidth = 20;
@@ -75,6 +75,8 @@ var gameData = {
 	players: {},
 	bullets: [],
 	cross: cross,
+	width: width,
+	height: height,
 	total: 0
 }
 
@@ -92,7 +94,7 @@ function hideCross(){
 		gameData.cross.enabled = false;
 		if (secondsToCross > 5) secondsToCross--;
 		showCross();
-	}, secondsToCross * 1000)	
+	}, secondsToCross * 800)
 }
 
 showCross();
@@ -108,6 +110,8 @@ io.on('connection', function(socket) {
 			name: data.name,
 			width: playerWidth,
 			height: playerHeight,
+			mapWidth: width,
+			mapHeight: height,
 			speed: playerSpeed,
 			incapacitated: false,
 			x: 125,
@@ -116,18 +120,18 @@ io.on('connection', function(socket) {
 		gameData.players[socket.id] = player;
 		io.sockets.emit('player info', player);
 	});
-	socket.on('movement', function(data) {		
+	socket.on('movement', function(data) {
 		var player = gameData.players[socket.id] || {};
 		if (data.left && player.x - 10 > 0) {
 			player.x -= player.speed;
 		}
-		if (data.up && player.y - 40 > 0) {
+		if (data.up && player.y - 30 > 0) {
 			player.y -= player.speed;
 		}
-		if (data.right && player.x + 20 < width) {
+		if (data.right && player.x + player.width < width) {
 			player.x += player.speed;
 		}
-		if (data.down && player.y + 20 < height) {
+		if (data.down && player.y + player.height < height) {
 			player.y += player.speed;
 		}
 	});
@@ -138,7 +142,7 @@ io.on('connection', function(socket) {
 
 var shoot = function() {
     if (difficulty > 0.4){
-		difficulty = difficulty - 0.1;
+		difficulty = difficulty - 0.2;
 	}
 	var h = Math.random() >= 0.5;
 	var v = !h;
@@ -192,7 +196,7 @@ setInterval(function() {
 			break;
 			case "rl":
 				bullet.x -= bulletSpeed 
-				if (bullet.x < 0) gameData.bullets.splice(i, 1)
+				if (bullet.x < 0 - bullet.width) gameData.bullets.splice(i, 1)
 			break;
 			case "tb":
 				bullet.y += bulletSpeed
@@ -200,7 +204,7 @@ setInterval(function() {
 			break;
 			case "bt":
 				bullet.y -= bulletSpeed
-				if (bullet.y < 0) gameData.bullets.splice(i, 1)
+				if (bullet.y < 0 - bullet.width) gameData.bullets.splice(i, 1)
 			break;
 		}
 	}
