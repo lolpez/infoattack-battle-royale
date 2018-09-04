@@ -23,7 +23,7 @@ var gamePlayers = null;
 var gameBullets = null;
 var isFullScreen = false;
 var currentPlayer = null;
-var cross = null;
+var cross = {enabled: false};
 
 setInterval(function () {
 	joystick.right() ? movement.right = true : movement.right = false;
@@ -134,7 +134,7 @@ function redraw() {
 		context.rect(bullet.x, bullet.y, bullet.width, bullet.height);
 		context.fill();
 	}
-	if (cross){
+	if (cross.enabled){
 		context.beginPath();
 		context.rect(cross.horizontal.x, cross.horizontal.y, cross.horizontal.width, cross.horizontal.height);
 		context.rect(cross.vertical.x, cross.vertical.y, cross.vertical.width, cross.vertical.height);

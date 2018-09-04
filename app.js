@@ -46,39 +46,54 @@ app.use(function(err, req, res, next) {
 var width = 350;
 var height = 550;
 var bulletSpeed = 5;
+var difficulty = 5; // 1 bullet per 5sec
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
 var playerWidth = 20;
 var playerHeight = 20;
 var playerSpeed = 5;
 var playerIncapacitatedSpeed = 0.3;
-var secondsToCross = 20;
+var secondsToCross = 2;
 var helping = {}
 var cross = {
 	horizontal: {
-		x: width / 2 - 5,
+		x: Math.floor(Math.random() * width),
 		y: 0,
 		width: 10,
 		height: height
 	},
 	vertical: {
 		x: 0,
-		y: height / 2 - 5,
+		y: Math.floor(Math.random() * height),
 		width: width,
 		height: 10
-	}
+	},
+	enabled: false
 }
 
 var gameData = {
 	players: {},
 	bullets: [],
-	cross: null,
+	cross: cross,
 	total: 0
 }
 
-setTimeout(function(){
-	gameData.cross = cross;
-}, secondsToCross * 1000)
+function showCross(){
+	setTimeout(function(){
+		gameData.cross.horizontal.x = Math.floor(Math.random() * width);
+		gameData.cross.vertical.y = Math.floor(Math.random() * height);
+		gameData.cross.enabled = true;		
+		hideCross();
+	}, secondsToCross * 1000)
+}
+function hideCross(){
+	setTimeout(function(){
+		gameData.cross.enabled = false;
+		showCross();
+	}, secondsToCross * 1000)	
+}
+
+showCross();
 
 io.on('connection', function(socket) {
 	socket.on('modifier', function(data) {
@@ -119,7 +134,10 @@ io.on('connection', function(socket) {
 	});
 });
 
-setInterval(function() {
+var shoot = function() {
+    if (difficulty > 0.1){
+		difficulty = difficulty - 0.1;
+	}
 	var h = Math.random() >= 0.5;
 	var v = !h;
 	var dir = "";
@@ -158,7 +176,9 @@ setInterval(function() {
 		dir: dir
 	}
 	gameData.bullets.push(bullet);
-}, 1000);
+    setTimeout(shoot, difficulty * 1000);
+}
+setTimeout(shoot, difficulty * 1000);
 
 setInterval(function() {	
 	for (i = 0; i < gameData.bullets.length; i++){
@@ -182,14 +202,17 @@ setInterval(function() {
 			break;
 		}
 	}
-	hits().then((player, bulletPos) => {
-		if (player.incapacitated){ //player died
-			kill(player.id)
+	hits().then((data) => {
+		if (data.instakill){
+			kill(data.player.id);
+		} else if (data.player.incapacitated){
+			kill(data.player.id)
+			gameData.bullets.splice(data.bulletPos, 1);
 		}else{
-			player.incapacitated = true;
-			player.speed = playerIncapacitatedSpeed;
-		}
-		gameData.bullets.splice(bulletPos, 1);
+			data.player.incapacitated = true;
+			data.player.speed = playerIncapacitatedSpeed;
+			gameData.bullets.splice(data.bulletPos, 1);
+		}		
 	});
 	help().then((data) => {
 		(data.help) ? startHelping(data.helper, data.incapacitated) : stopHelping(data.helper, data.incapacitated)
@@ -199,30 +222,39 @@ setInterval(function() {
 
 function hits(){
 	return new Promise((resolve, reject) => {	
-		for (i = 0; i < gameData.bullets.length; i++){
-			var bullet = gameData.bullets[i];
-			for (var j in gameData.players) {
-				var player = gameData.players[j];
+		for (var j in gameData.players) {
+			var player = gameData.players[j];
+			if (gameData.cross.enabled){
+				if ((gameData.cross.horizontal.x + gameData.cross.horizontal.width) > player.x &&
+					gameData.cross.horizontal.x < player.x + player.width &&
+					(gameData.cross.horizontal.y + gameData.cross.horizontal.height) > player.y &&
+					gameData.cross.horizontal.y < player.y + player.height){
+						resolve({
+							player: player,
+							instakill: true
+						})
+				}
+				if ((gameData.cross.vertical.x + gameData.cross.vertical.width) > player.x &&
+					gameData.cross.vertical.x < player.x + player.width &&
+					(gameData.cross.vertical.y + gameData.cross.vertical.height) > player.y &&
+					gameData.cross.vertical.y < player.y + player.height){
+						resolve({
+							player: player,
+							instakill: true
+						})
+				}
+			}
+			for (i = 0; i < gameData.bullets.length; i++){
+				var bullet = gameData.bullets[i];	
 				if ((bullet.x + bullet.width) > player.x &&
 					bullet.x < player.x + player.width &&
 					(bullet.y + bullet.height) > player.y &&
 					bullet.y < player.y + player.height){
-						resolve(player, i)
-				}
-
-				if (gameData.cross){
-					if ((gameData.cross.horizontal.x + gameData.cross.horizontal.width) > player.x &&
-						gameData.cross.horizontal.x < player.x + player.width &&
-						(gameData.cross.horizontal.y + gameData.cross.horizontal.height) > player.y &&
-						gameData.cross.horizontal.y < player.y + player.height){
-							resolve(player, i)
-					}
-					if ((gameData.cross.vertical.x + gameData.cross.vertical.width) > player.x &&
-						gameData.cross.vertical.x < player.x + player.width &&
-						(gameData.cross.vertical.y + gameData.cross.vertical.height) > player.y &&
-						gameData.cross.vertical.y < player.y + player.height){
-							resolve(player, i)
-					}
+						resolve({
+							player: player,
+							bulletPos: i,
+							instakill: false
+						})
 				}
 			}
 		}
