@@ -23,6 +23,7 @@ var gamePlayers = null;
 var gameBullets = null;
 var isFullScreen = false;
 var currentPlayer = null;
+var cross = null;
 
 setInterval(function () {
 	joystick.right() ? movement.right = true : movement.right = false;
@@ -103,6 +104,7 @@ socket.on('state', function (gameData) {
 	document.getElementById('playerCount').innerHTML = `${gameData.total} alive`;
 	gamePlayers = gameData.players;
 	gameBullets = gameData.bullets;
+	cross = gameData.cross;
 	redraw();
 });
 
@@ -123,6 +125,12 @@ function redraw() {
 		var bullet = gameBullets[id]
 		context.beginPath();
 		context.rect(bullet.x, bullet.y, bullet.width, bullet.height);
+		context.fill();
+	}
+	if (cross){
+		context.beginPath();
+		context.rect(cross.horizontal.x, cross.horizontal.y, cross.horizontal.width, cross.horizontal.height);
+		context.rect(cross.vertical.x, cross.vertical.y, cross.vertical.width, cross.vertical.height);
 		context.fill();
 	}
 }

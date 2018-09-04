@@ -6,6 +6,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var gameRouter = require('./routes/game');
+var spectatorRouter = require('./routes/spectator');
 
 var app = express();
 var server = require('http').Server(app);
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/game', gameRouter);
+app.use('/spectator', spectatorRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -41,11 +43,6 @@ app.use(function(err, req, res, next) {
 	res.render('error');
 });
 
-var gameData = {
-	players: {},
-	bullets: [],
-	total: 0
-}
 var width = 350;
 var height = 550;
 var bulletSpeed = 5;
@@ -55,9 +52,38 @@ var playerWidth = 25;
 var playerHeight = 25;
 var playerSpeed = 5;
 var playerIncapacitatedSpeed = 0.3;
+var secondsToCross = 20;
 var helping = {}
+var cross = {
+	horizontal: {
+		x: width / 2 - 5,
+		y: 0,
+		width: 10,
+		height: height
+	},
+	vertical: {
+		x: 0,
+		y: height / 2 - 5,
+		width: width,
+		height: 10
+	}
+}
+
+var gameData = {
+	players: {},
+	bullets: [],
+	cross: null,
+	total: 0
+}
+
+setTimeout(function(){
+	gameData.cross = cross;
+}, secondsToCross * 1000)
 
 io.on('connection', function(socket) {
+	socket.on('modifier', function(data) {
+		bulletSpeed = data.bulletSpeed
+	});
 	socket.on('new player', function(data) {
 		gameData.total++;
 		var player = {
@@ -89,8 +115,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('disconnect', function() {
-		delete gameData.players[socket.id];
-		gameData.total--;
+		kill(socket.id)
 	});
 });
 
@@ -159,8 +184,7 @@ setInterval(function() {
 	}
 	hits().then((player, bulletPos) => {
 		if (player.incapacitated){ //player died
-			delete gameData.players[player.id];
-			gameData.total--;
+			kill(player.id)
 		}else{
 			player.incapacitated = true;
 			player.speed = playerIncapacitatedSpeed;
@@ -174,7 +198,7 @@ setInterval(function() {
 }, 1000 / 60);
 
 function hits(){
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject) => {	
 		for (i = 0; i < gameData.bullets.length; i++){
 			var bullet = gameData.bullets[i];
 			for (var j in gameData.players) {
@@ -184,6 +208,21 @@ function hits(){
 					(bullet.y + bullet.height) > player.y &&
 					bullet.y < player.y + player.height){
 						resolve(player, i)
+				}
+
+				if (gameData.cross){
+					if ((gameData.cross.horizontal.x + gameData.cross.horizontal.width) > player.x &&
+						gameData.cross.horizontal.x < player.x + player.width &&
+						(gameData.cross.horizontal.y + gameData.cross.horizontal.height) > player.y &&
+						gameData.cross.horizontal.y < player.y + player.height){
+							resolve(player, i)
+					}
+					if ((gameData.cross.vertical.x + gameData.cross.vertical.width) > player.x &&
+						gameData.cross.vertical.x < player.x + player.width &&
+						(gameData.cross.vertical.y + gameData.cross.vertical.height) > player.y &&
+						gameData.cross.vertical.y < player.y + player.height){
+							resolve(player, i)
+					}
 				}
 			}
 		}
@@ -244,6 +283,11 @@ function stopHelping(helper, incapacitated){
 		clearTimeout(helping[`${helper.id}${incapacitated.id}`].timeout)
 		delete helping[`${helper.id}${incapacitated.id}`];
 	}
+}
+
+function kill(id){
+	delete gameData.players[id];
+	gameData.total--;
 }
 
 module.exports = app;
