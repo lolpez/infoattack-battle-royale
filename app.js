@@ -46,7 +46,7 @@ app.use(function(err, req, res, next) {
 var width = 350;
 var height = 550;
 var bulletSpeed = 5;
-var difficulty = 5; // 1 bullet per 5 secs
+var difficulty = 15; // 1 bullet per 5 secs
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
 var playerWidth = 20;
