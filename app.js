@@ -44,7 +44,6 @@ app.use(function(err, req, res, next) {
 var gameData = {
 	players: {},
 	bullets: [],
-	helping: {},
 	total: 0
 }
 var width = 350;
@@ -56,6 +55,7 @@ var playerWidth = 25;
 var playerHeight = 25;
 var playerSpeed = 5;
 var playerIncapacitatedSpeed = 0.3;
+var helping = {}
 
 io.on('connection', function(socket) {
 	socket.on('new player', function(data) {
@@ -159,10 +159,9 @@ setInterval(function() {
 	}
 	hits().then((player, bulletPos) => {
 		if (player.incapacitated){ //player died
-			//delete gameData.players[player.id];
+			delete gameData.players[player.id];
 			gameData.total--;
-		}else{ //player incapacitated
-			bulletSpeed = 0;
+		}else{
 			player.incapacitated = true;
 			player.speed = playerIncapacitatedSpeed;
 		}
@@ -198,7 +197,7 @@ function help(){
 			if (incapacitated.incapacitated){
 				for (var j in gameData.players) {
 					helper = gameData.players[j];
-					if (helper.id !== incapacitated.id){
+					if (helper.id !== incapacitated.id && !helper.incapacitated){
 						if ((incapacitated.x + incapacitated.width) > helper.x &&
 							incapacitated.x < helper.x + helper.width &&
 							(incapacitated.y + incapacitated.height) > helper.y &&
@@ -224,29 +223,27 @@ function help(){
 }
 
 function startHelping(helper, incapacitated){
-	console.log(gameData.helping[helper.id + incapacitated.id] === undefined)
-	if (gameData.helping[helper.id + incapacitated.id] === undefined){
-		console.log("entre")
-		var timeout = setTimeout(function(){ 
-			console.log("salvado papu")
-			incapacitated.incapacitated = false;
-			incapacitated.speed = playerSpeed;
-			//clearTimeout(gameData.helping[helper.id + incapacitated.id].interval);
-			delete gameData.helping[helper.id + incapacitated.id];
-		}, 3000)
-		gameData.helping[helper.id + incapacitated.id] = {
+	if (helping[`${helper.id}${incapacitated.id}`] == null){
+		helping[`${helper.id}${incapacitated.id}`]  = {
 			helper: helper,
 			incapacitated: incapacitated,
-			timeout: timeout
+			timeout: setTimeout(function(){
+				console.log(`${helper.name} saved ${incapacitated.name}`)
+				incapacitated.incapacitated = false;
+				incapacitated.speed = playerSpeed;
+				clearTimeout(helping[`${helper.id}${incapacitated.id}`].timeout)
+				delete helping[`${helper.id}${incapacitated.id}`];
+			}, 3000)
 		}
 	}
 }
 
 function stopHelping(helper, incapacitated){
-	/*if (gameData.helping[helper.id + incapacitated.id] !== undefined){
-		clearTimeout(gameData.helping[helper.id + incapacitated.id].interval);
-		delete gameData.helping[helper.id + incapacitated.id];
-	}*/
+	if (helping[`${helper.id}${incapacitated.id}`] != null){
+		console.log(`${helper.name} canceled saving ${incapacitated.name}`)
+		clearTimeout(helping[`${helper.id}${incapacitated.id}`].timeout)
+		delete helping[`${helper.id}${incapacitated.id}`];
+	}
 }
 
 module.exports = app;

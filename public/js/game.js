@@ -10,7 +10,6 @@ var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-document.getElementById('playerCount').innerHTML = `${canvas.width} x ${canvas.height}`;
 context.font = '20px san-serif';
 
 var movement = {
@@ -101,14 +100,13 @@ setInterval(function () {
 }, 1000 / 60);
 
 socket.on('state', function (gameData) {
-	// document.getElementById('playerCount').innerHTML = `${gameData.alive}/${gameData.total}`;
+	document.getElementById('playerCount').innerHTML = `${gameData.total} alive`;
 	gamePlayers = gameData.players;
 	gameBullets = gameData.bullets;
 	redraw();
 });
 
 function redraw() {
-	document.getElementById('playerCount').innerHTML = `${canvas.width} x ${canvas.height}`;
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.fillStyle = 'green';
 	for (var id in gamePlayers) {
@@ -117,10 +115,9 @@ function redraw() {
 		context.beginPath();
 		//context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.rect(player.x, player.y, player.width, player.height);
-		context.fillText(player.name + " " + player.x + "," + player.y, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
+		context.fillText(player.name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
 		context.fill();
 	}
-	
 	context.fillStyle = 'black';
 	for (var id in gameBullets) {
 		var bullet = gameBullets[id]
