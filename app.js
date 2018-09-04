@@ -46,14 +46,14 @@ app.use(function(err, req, res, next) {
 var width = 350;
 var height = 550;
 var bulletSpeed = 5;
-var difficulty = 5; // 1 bullet per 5sec
+var difficulty = 5; // 1 bullet per 5 secs
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
 var playerWidth = 20;
 var playerHeight = 20;
 var playerSpeed = 5;
 var playerIncapacitatedSpeed = 0.3;
-var secondsToCross = 2;
+var secondsToCross = 20;
 var helping = {}
 var cross = {
 	horizontal: {
@@ -82,13 +82,15 @@ function showCross(){
 	setTimeout(function(){
 		gameData.cross.horizontal.x = Math.floor(Math.random() * width);
 		gameData.cross.vertical.y = Math.floor(Math.random() * height);
-		gameData.cross.enabled = true;		
-		hideCross();
+		gameData.cross.enabled = true;
+		if (secondsToCross > 5) secondsToCross--;
+		hideCross();		
 	}, secondsToCross * 1000)
 }
 function hideCross(){
 	setTimeout(function(){
 		gameData.cross.enabled = false;
+		if (secondsToCross > 5) secondsToCross--;
 		showCross();
 	}, secondsToCross * 1000)	
 }
@@ -135,7 +137,7 @@ io.on('connection', function(socket) {
 });
 
 var shoot = function() {
-    if (difficulty > 0.1){
+    if (difficulty > 0.4){
 		difficulty = difficulty - 0.1;
 	}
 	var h = Math.random() >= 0.5;
