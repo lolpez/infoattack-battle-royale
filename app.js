@@ -48,8 +48,8 @@ var height = 550;
 var bulletSpeed = 5;
 var bulletMaxSize = 50;
 var bulletMinSize = 10;
-var playerWidth = 25;
-var playerHeight = 25;
+var playerWidth = 20;
+var playerHeight = 20;
 var playerSpeed = 5;
 var playerIncapacitatedSpeed = 0.3;
 var secondsToCross = 20;
@@ -160,7 +160,7 @@ setInterval(function() {
 	gameData.bullets.push(bullet);
 }, 1000);
 
-setInterval(function() {
+setInterval(function() {	
 	for (i = 0; i < gameData.bullets.length; i++){
 		var bullet = gameData.bullets[i]
 		switch (bullet.dir){

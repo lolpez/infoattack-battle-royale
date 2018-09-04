@@ -110,14 +110,21 @@ socket.on('state', function (gameData) {
 
 function redraw() {
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	context.fillStyle = 'green';
 	for (var id in gamePlayers) {
 		var player = gamePlayers[id];
 		if (currentPlayer)	if (player.id === currentPlayer.id) currentPlayer = player;
 		context.beginPath();
+		context.fillStyle = 'green';
 		//context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.rect(player.x, player.y, player.width, player.height);
 		context.fillText(player.name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
+		context.fill();
+		context.beginPath();
+		context.fillStyle= "red";
+		if (player.incapacitated){
+			context.rect(player.x + (player.width / 2) - 2, player.y, 4, player.height);
+			context.rect(player.x , player.y + (player.height / 2) - 2, player.width, 4);
+		}
 		context.fill();
 	}
 	context.fillStyle = 'black';
