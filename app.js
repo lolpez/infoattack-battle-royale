@@ -43,8 +43,8 @@ app.use(function(err, req, res, next) {
 	res.render('error');
 });
 
-var init = false;
-var width = 400;
+
+var width = 350;
 var height = 600;
 var bulletSpeed = 5;
 var difficulty = 7; // 1 bullet per 7 secs
