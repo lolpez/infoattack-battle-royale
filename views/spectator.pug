@@ -11,20 +11,28 @@ html
 		| Activate boss fight
 		br
 		input(type='button', id='boss', value="Boss Fight")
+		br
+		br
+		| Fire
+		br
+		input(type='button', id='fire', value="Fire")
+		br
+		br
 		| Launch tentacles
 		br
-		input(type='button', id='tentacles', value="Fire")
-		script(src='./socket.io/socket.io.js')
-		br
-		br
+		input(type='button', id='tentacles', value="Tentacles")
 		script(src='./socket.io/socket.io.js')
 		script.
 			var socket = io();
 			var startButton = document.getElementById('start')
+			var fireButton = document.getElementById('fire')
 			var tentaclesButton = document.getElementById('tentacles')
 			var bossButton = document.getElementById('boss')
 			startButton.addEventListener("click", function(){
 				socket.emit('start');
+			});
+			fireButton.addEventListener("click", function(){
+				socket.emit('shoot');
 			});
 			tentaclesButton.addEventListener("click", function(){
 				socket.emit('tentacles');

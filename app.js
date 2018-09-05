@@ -107,6 +107,9 @@ io.on('connection', function(socket) {
 		setTimeout(shoot, difficulty * 1000);
 		setTimeout(shoot, difficulty * 1000);
 	});
+	socket.on('shoot', function() {
+		shoot();
+	});
 	socket.on('tentacles', function() {
 		shootCross();
 	});
@@ -150,7 +153,7 @@ io.on('connection', function(socket) {
 	});
 });
 
-var shoot = function() {
+function shoot() {
 	if (difficulty > 0.4){
 		difficulty = difficulty - 0.2;
 	}
@@ -192,7 +195,7 @@ var shoot = function() {
 		dir: dir
 	}
 	gameData.bullets.push(bullet);
-	setTimeout(shoot, difficulty * 1000);
+//	setTimeout(shoot, difficulty * 1000);
 }
 
 setInterval(function() {	
