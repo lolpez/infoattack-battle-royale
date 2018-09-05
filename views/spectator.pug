@@ -35,7 +35,8 @@ html
 			var tentaclesButton = document.getElementById('tentacles')
 			var bossButton = document.getElementById('boss')
 			startButton.addEventListener("click", function(){
-				socket.emit('start');
+				var audio = new Audio('/music/Miracle_5ympho_X.mp3');
+				audio.play();
 			});
 			fireButton.addEventListener("click", function(){
 				socket.emit('shoot');
