@@ -104,8 +104,8 @@ function hideCross(){
 
 io.on('connection', function(socket) {
 	socket.on('start', function() {
-		setTimeout(shoot, difficulty * 1000);
-		setTimeout(shoot, difficulty * 1000);
+		//setTimeout(shoot, difficulty * 1000);
+		//setTimeout(shoot, difficulty * 1000);
 	});
 	socket.on('shoot', function() {
 		shoot();
@@ -126,6 +126,7 @@ io.on('connection', function(socket) {
 			mapWidth: width,
 			mapHeight: height,
 			speed: playerSpeed,
+			lifes: 3,
 			incapacitated: false,
 			x: 125,
 			y: 275
@@ -221,16 +222,19 @@ setInterval(function() {
 		}
 	}
 	hits().then((data) => {
+		data.player.lifes--;
 		if (data.instakill){
 			kill(data.player.id);
 		} else if (data.player.incapacitated){
 			kill(data.player.id)
 			gameData.bullets.splice(data.bulletPos, 1);
 		}else{
-			data.player.incapacitated = true;
-			data.player.speed = playerIncapacitatedSpeed;
+			if (data.player.lifes == 0){
+				data.player.incapacitated = true;
+				data.player.speed = playerIncapacitatedSpeed;
+			}
 			gameData.bullets.splice(data.bulletPos, 1);
-		}		
+		}
 	});
 	help().then((data) => {
 		(data.help) ? startHelping(data.helper, data.incapacitated) : stopHelping(data.helper, data.incapacitated)
@@ -320,6 +324,7 @@ function startHelping(helper, incapacitated){
 			timeout: setTimeout(function(){
 				console.log(`${helper.name} saved ${incapacitated.name}`)
 				incapacitated.incapacitated = false;
+				incapacitated.lifes = 1;
 				incapacitated.speed = playerSpeed;
 				clearTimeout(helping[`${helper.id}${incapacitated.id}`].timeout)
 				delete helping[`${helper.id}${incapacitated.id}`];
