@@ -11,6 +11,12 @@ a {
 	color: #00B7FF;
 }
 
+.boss{
+	background-image: url(/img/watcher.png);
+	background-size: cover;
+	background-position: center;
+}
+
 #menu{
 	position: fixed;
 	margin: 10px;

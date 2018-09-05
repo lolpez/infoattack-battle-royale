@@ -107,10 +107,11 @@ socket.on('state', function (gameData) {
 	gamePlayers = gameData.players;
 	gameBullets = gameData.bullets;
 	cross = gameData.cross;
+	if (gameData.boss) canvas.classList.add("boss")
 	redraw();
 });
 
-function redraw() {
+function redraw() {	
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	for (var id in gamePlayers) {
 		var player = gamePlayers[id];
@@ -119,7 +120,7 @@ function redraw() {
 		context.fillStyle = 'green';
 		//context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.rect(player.x, player.y, player.width, player.height);
-		context.fillText(player.name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 20);
+		context.fillText(player.name, player.x - context.measureText(player.name).width + (context.measureText(player.name).width / 2), player.y - 10);
 		context.fill();
 		context.beginPath();
 		context.fillStyle= "red";
@@ -129,7 +130,7 @@ function redraw() {
 		}
 		context.fill();
 	}
-	context.fillStyle = 'black';
+	context.fillStyle = 'red';
 	for (var id in gameBullets) {
 		var bullet = gameBullets[id]
 		context.beginPath();

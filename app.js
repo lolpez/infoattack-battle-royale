@@ -71,6 +71,7 @@ var cross = {
 	},
 	enabled: false
 }
+var crossInterval = null;
 
 var gameData = {
 	players: {},
@@ -78,30 +79,39 @@ var gameData = {
 	cross: cross,
 	width: width,
 	height: height,
+	boss: false,
 	total: 0
 }
 
-function showCross(){
+function shootCross(){
+	clearTimeout(crossInterval);
+	gameData.cross.horizontal.x = Math.floor(Math.random() * width);
+	gameData.cross.horizontal.height = 10;
+	gameData.cross.vertical.y = Math.floor(Math.random() * height);
+	gameData.cross.vertical.width = 10;
+	gameData.cross.enabled = true;
 	setTimeout(function(){
-		gameData.cross.horizontal.x = Math.floor(Math.random() * width);
-		gameData.cross.vertical.y = Math.floor(Math.random() * height);
-		gameData.cross.enabled = true;
-		if (secondsToCross > 5) secondsToCross--;
-		hideCross();		
+		gameData.cross.horizontal.height = height;
+		gameData.cross.vertical.width = width;
+	}, 1000)
+	crossInterval = setTimeout(function(){
+		hideCross();
 	}, secondsToCross * 1000)
 }
 function hideCross(){
-	setTimeout(function(){
-		gameData.cross.enabled = false;
-		if (secondsToCross > 5) secondsToCross--;
-		showCross();
-	}, secondsToCross * 800)
+	gameData.cross.enabled = false;
 }
 
 io.on('connection', function(socket) {
 	socket.on('start', function() {
 		setTimeout(shoot, difficulty * 1000);
-		showCross();
+		setTimeout(shoot, difficulty * 1000);
+	});
+	socket.on('tentacles', function() {
+		shootCross();
+	});
+	socket.on('boss', function() {
+		gameData.boss = true;
 	});
 	socket.on('new player', function(data) {
 		gameData.total++;

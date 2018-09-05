@@ -3,14 +3,32 @@ html
 		title Spectator Mode
 		meta(name='viewport', content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0')
 	body
-		| Start Game
+		| Start game
 		br
 		input(type='button', id='start', value="start")
+		br
+		br
+		| Activate boss fight
+		br
+		input(type='button', id='boss', value="Boss Fight")
+		| Launch tentacles
+		br
+		input(type='button', id='tentacles', value="Fire")
+		script(src='./socket.io/socket.io.js')
+		br
 		br
 		script(src='./socket.io/socket.io.js')
 		script.
 			var socket = io();
 			var startButton = document.getElementById('start')
+			var tentaclesButton = document.getElementById('tentacles')
+			var bossButton = document.getElementById('boss')
 			startButton.addEventListener("click", function(){
 				socket.emit('start');
+			});
+			tentaclesButton.addEventListener("click", function(){
+				socket.emit('tentacles');
+			});
+			bossButton.addEventListener("click", function(){
+				socket.emit('boss');
 			});
