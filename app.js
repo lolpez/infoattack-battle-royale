@@ -110,6 +110,10 @@ io.on('connection', function(socket) {
 	socket.on('shoot', function() {
 		shoot();
 	});
+	socket.on('doubleshoot', function() {
+		shoot();
+		shoot();
+	});
 	socket.on('tentacles', function() {
 		shootCross();
 	});

@@ -18,6 +18,11 @@ html
 		input(type='button', id='fire', value="Fire")
 		br
 		br
+		| Double Fire
+		br
+		input(type='button', id='doublefire', value="Double Fire")
+		br
+		br
 		| Launch tentacles
 		br
 		input(type='button', id='tentacles', value="Tentacles")
@@ -26,6 +31,7 @@ html
 			var socket = io();
 			var startButton = document.getElementById('start')
 			var fireButton = document.getElementById('fire')
+			var doublefireButton = document.getElementById('doublefire')			
 			var tentaclesButton = document.getElementById('tentacles')
 			var bossButton = document.getElementById('boss')
 			startButton.addEventListener("click", function(){
@@ -34,6 +40,9 @@ html
 			fireButton.addEventListener("click", function(){
 				socket.emit('shoot');
 			});
+			doublefireButton.addEventListener("click", function(){
+				socket.emit('doubleshoot');
+			});			
 			tentaclesButton.addEventListener("click", function(){
 				socket.emit('tentacles');
 			});
